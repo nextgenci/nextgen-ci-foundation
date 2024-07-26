@@ -13,7 +13,6 @@ The `nextgen-ci-foundation` repository provides foundational components and conf
       - [String Utilities](#string-utilities)
       - [Array Utilities](#array-utilities)
       - [Jitter Utility](#jitter-utility)
-- [Configuration](#configuration)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -22,8 +21,7 @@ The `nextgen-ci-foundation` repository provides the following features:
 
 - **Logging**: Flexible and configurable logging system with support for multiple log formats (plain text, console JSON, Cloud Logging, etc.).
 - **Graceful Shutdown**: Ensure services can shut down gracefully, preserving state and avoiding data loss.
-
-## Installation
+- **Utilities**: Various utility functions for working with files, strings, arrays, and jitter.
 
 ## Installation
 
