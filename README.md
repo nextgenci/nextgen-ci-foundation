@@ -53,38 +53,38 @@ func main() {
 
 ### Graceful Shutdown
 
-The graceful shutdown package ensures that services can shut down gracefully.
+The graceful package provides a simple and effective way to manage the shutdown of an application by:
+- Tracking and waiting for all active goroutines to finish before exiting. 
+- Handling OS signals (like SIGINT and SIGTERM) that indicate the application should terminate.
+- Observing and logging the specific shutdown signal that triggered the termination.
+
+Usage:
+- Use NewShutdownObserver to create a new observer goroutine that will be notified when an OS signal is received via the shutdown channel (the first return value). This goroutine should handle its own cleanup as well as the cleanup of any other spawned goroutines. To inform the graceful shutdown process that cleanup is complete, it should call done() (the second return value).
+- Use HandleSignals to block the main goroutine until an OS signal is received by the process.
+- Use HandleSignalsWithContext to block the main goroutine until either an OS signal is received or the provided context is canceled.
+- Use Shutdown to manually trigger a shutdown signal to all observers. This can be useful when you need to initiate a shutdown based on an API call or from a goroutine other than the main one.
+
 ```go
 package main
 
 import (
-	"os"
-	"os/signal"
-	"sync"
-	"syscall"
-
-	"github.com/nextgenci/nextgen-ci-foundation/foundation/shutdown"
+    "github.com/nextgenci/nextgen-ci-foundation/foundation/graceful"
 )
 
 func main() {
-	var waitGroup sync.WaitGroup
+    go someGoroutine()
+    // if INT or TERM signal is received, go-shutdown-graceful will trigger shutdown signal to all observers.
+    // Observers can do cleanup and call done() to notify go-shutdown-graceful that they are done.
+    // Default timeout for cleanup is 30 seconds. This can be changed by calling HandleOsSignals with a time.Duration value.
+    graceful.HandleSignals(0)
+}
 
-	// Define functions to execute on shutdown
-	functionsOnShutdown := []func(){
-		func() {
-			// Add your shutdown logic here
-		},
-	}
-
-	gracefulShutdown := make(chan os.Signal, 1)
-	signal.Notify(gracefulShutdown, syscall.SIGTERM, syscall.SIGINT)
-
-	go foundation.HandleGracefulShutdown(gracefulShutdown, &waitGroup, functionsOnShutdown...)
-
-	// Application code...
-	waitGroup.Add(1)
-	// Simulate work
-	waitGroup.Done()
+func someGoroutine() {
+    // do something in separate goroutine
+    shutdown, done := graceful.NewShutdownObserver()
+    <-shutdown
+    // close the background goroutine started before
+    done()
 }
 ``` 
 

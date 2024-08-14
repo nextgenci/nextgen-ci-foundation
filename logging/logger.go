@@ -2,7 +2,7 @@ package foundation
 
 import (
 	"github.com/logrusorgru/aurora/v4"
-	"github.com/nextgenci/nextgen-ci-foundation/foundation/domain"
+	"github.com/nextgenci/nextgen-ci-foundation/domain"
 	stdlog "log"
 	"os"
 	"strings"
