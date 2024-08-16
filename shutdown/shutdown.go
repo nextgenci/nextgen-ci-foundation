@@ -78,18 +78,19 @@ func HandleSignalsWithContext(ctx context.Context, timeout time.Duration, signal
 	// Wait for interrupt signal to gracefully shutdown the server with
 	event := observe(ctx, signals...)
 	if event.Fired != nil {
-		log.Printf("received %s(%#v)! shutting down", event.Fired.String(), event.Fired)
+		log.Info().Msgf("received %s(%#v)! shutting down", event.Fired.String(), event.Fired)
 	}
 	go triggerShutdown()
-	log.Printf("waiting %d for services/ routines to finish\n", observers.Pending())
+	log.Info().Msgf("waiting %d for services/ routines to finish\n", observers.Pending())
 	select {
 	case <-time.After(timeout):
 		if observers.Pending() > 0 {
+			log.Warn().Msgf("graceful shutdown: %d observers not closed: %w", observers.Pending(), ErrTimeout)
 			return fmt.Errorf("graceful shutdown: %d observers not closed: %w", observers.Pending(), ErrTimeout)
 		}
 	case <-routinesDone:
 	}
-	log.Printf("all observers closed\n")
+	log.Info().Msgf("all observers closed\n")
 	if event.Fired == nil {
 		return fmt.Errorf("graceful shutdown: %w", event.ContextErr)
 	}

@@ -1,4 +1,4 @@
-package foundation
+package logging
 
 import (
 	"github.com/logrusorgru/aurora/v4"
